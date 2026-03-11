@@ -27,7 +27,7 @@
 - [x] **Monaco Editor 集成** — 支持 Python 语法高亮、自动缩进、智能提示
 - [x] **Pyodide Python 运行时** — WASM 驱动，支持 Pandas/NumPy 浏览器端执行
 - [x] **数据预览表格 (Data Table)** — 实时从 Pyodide 文件系统读取并渲染 CSV 数据
-- [x] **AI 助教咨询 (Chat Tutor)** — 接入 Gemini 1.5 Flash，提供启发式代码纠错
+- [x] **AI 助教咨询 (Chat Tutor)** — 接入 Kimi (Moonshot AI)，提供启发式代码纠错
 - [x] **自动化任务评测 (OJ System)** — 基于预置 Python 脚本的业务逻辑自动判定
 - [x] **交互动效** — 五彩纸屑庆祝特效、实时终端日志输出、业务词典 Table
 
