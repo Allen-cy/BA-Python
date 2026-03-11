@@ -1,33 +1,32 @@
 # 🔑 BA-Python 关键决策记录
 
-> 最后更新：2026-03-10
+> 最后更新：2026-03-11
 
 ---
 
-## 对话 #1（2026-03-10 20:00 ~ 21:10）
+## 对话 #2（2026-03-11 14:00 ~ 16:30）
 
-### 主题：全栈架构改造 + 文档体系初始化
+### 主题：交互式引擎、AI 助教与评测系统 (v1.5.0)
 
 #### 关键决策
 
 | # | 决策 | 原因 | 影响 |
-|---|------|------|------|
-| D-001 | 使用 Supabase 作为数据库 | 用户明确要求；PostgreSQL + Auth + RLS 一站式解决方案 | 无需自建后端认证和数据库 |
-| D-002 | 使用 Vercel Serverless Functions 作为后端 | 用户明确要求 Vercel 部署；与 Vite + React 天然集成 | 移除了 express/better-sqlite3 依赖 |
-| D-003 | 前端直连 Supabase（不通过 API 代理） | 减少延迟；Supabase RLS 提供安全保障；降低复杂度 | Hooks 直接使用 supabase-js 客户端 |
-| D-004 | 添加静态备用数据 | 确保在未配置 Supabase 时应用仍可演示 | useCourses.ts 包含 fallback 数据 |
-| D-005 | 数据库 RLS 策略设计 | 用户只能读写自己的进度和提交；所有人可读课程 | 安全性保障 |
-| D-006 | profiles 表通过触发器自动创建 | 简化注册流程；确保 auth.users 与 profiles 同步 | 用户注册后自动有 profile |
+| :--- | :--- | :--- | :--- |
+| D-007 | 使用 Pyodide (WASM) | 纯浏览器端运行 Python，无需后端服务器运行代码，响应速度快 | 无需支付昂贵的计算服务器费用 |
+| D-008 | 集成 Monaco Editor | 提供 VS Code 级的代码编辑体验，支持语法高亮和自动缩进 | 提升 BA 学生的使用专业感 |
+| D-009 | 运行时内评测逻辑 | 利用 Pyodide 的 `locals()` 检查用户代码状态，比简单的字符串匹配更准确 | 支持更复杂的 OJ 级逻辑校验 |
+| D-010 | Pandas 数据读取闭环 | 使用 Python 将 CSV 转为 JSON 返回给 React Table | 实现了数据分析与 UI 的实时联动 |
+| D-011 | Pyodide 版本对齐 (0.29.3) | 修复 subagent 发现的版本不匹配问题 | 确保 WASM 运行时在本地稳定加载 |
 
 #### 技术问题与解决方案
 
 | 问题 | 解决方案 |
-|------|----------|
-| `import.meta.env` TypeScript 报错 | 在 supabase.ts 顶部添加 `/// <reference types="vite/client" />` |
-| 原项目依赖 express/better-sqlite3 | 清理移除，改用 Supabase + Vercel Serverless |
+| :--- | :--- |
+| `Pyodide version does not match` | 将 `lib/pyodide.ts` 中的 `indexURL` 升级为 `v0.29.3` 与 package.json 保持一致 |
+| AI Tutor 返回 `Unexpected end of JSON` | 识到 `vite dev` 不会自动代理 `api/` 目录；建议使用 `vercel dev` 进行联调 |
+| 代码提交后 UI 没反馈 | 在 `WorkspaceView` 中增加五彩纸屑 (Confetti) 特效和 Toast 通知 |
 
 #### 开发者须知
 
-- Supabase 项目需用户手动创建
-- 数据库迁移脚本需在 Supabase SQL Editor 中手动执行
-- Vercel 环境变量需手动配置
+- 本地调试 API (Gemini/AI Tutor) 建议使用 `vercel dev`
+- `lessons` 表需要增加 `validation_code` 字段方可使用自动评测功能

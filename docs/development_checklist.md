@@ -1,6 +1,6 @@
 # BA-Python 开发清单
 
-> 版本：v1.2.0 | 最后更新：2026-03-11
+> 版本：v1.5.0 | 最后更新：2026-03-11
 
 ---
 
@@ -20,21 +20,29 @@
 - [x] 全量迁移 `Header` & `Sidebar` 组件
 - [x] 重构 `App.tsx` 的导航逻辑与认证分流
 - [x] 重构 `DashboardView` & `WorkspaceView` (数据驱动)
-- [x] 深度定制 `LoginView` (UI 2.0 风格)
 
 ## Phase 4: 基础设施交付 (v1.2.0)
 - [x] 修复数据库迁移脚本的幂等性问题 (Policy exists error)
 - [x] 成功配置 SSH 远程仓库 (`git@github.com:Allen-cy/BA-Python.git`)
-- [x] 代码全量同步至 [GitHub](https://github.com/Allen-cy/BA-Python)
-- [x] 构建验证 (`npm run build` ✅)
-- [x] TypeScript 类型检查 (`npm run lint` ✅)
+- [x] 代码全量同步至 GitHub
 
-## Phase 5: 文档体系（超级协议）
-- [x] `product_life.md` — 产品生命旅程文档
+## Phase 5: 动力系统集成 (v1.5.0)
+- [x] **Pyodide Python 运行时** — 支持 Pandas 执行 ✅
+- [x] **Monaco Editor** — 语法高亮与专业编辑 ✅
+- [x] **Gemini AI 助教** — 启发式纠错接口 ✅
+- [x] **自动化评测系统** — 业务逻辑判定 ✅
+- [x] **数据预览表格** — CSV 实时预览 ✅
+- [x] **初始化数据资产** — CRM 数据集成 ✅
+
+## Phase 6: 文档体系（超级协议）
+- [x] `product_life.md` — 产品生命旅程文档 (v1.5.0)
 - [x] `docs/product_prd.md` — 产品需求文档
-- [x] `docs/Task_Log.md` — 任务看板 (v1.2.0 已完成)
+- [x] `docs/Task_Log.md` — 任务看板 (v1.5.0)
+- [x] `docs/conversation_history.md` — 完整对话历史
+- [x] `docs/Dev_Plan.md` — 迭代路线图
 
 ## 下一步工作 (Next Steps)
-- [ ] 集成 **Pyodide** 开发真实的浏览器端 Python 运行环境
-- [ ] 开发 **PersonalCenterView** 的雷达图真实统计逻辑
-- [ ] 集成 **Gemini AI** 提供辅助教学
+- [ ] 开发 **PersonalCenterView** 的雷达图真实统计逻辑（对接 submission 数据）
+- [ ] 开发 **ProjectsView** 项目实战模块
+- [ ] 实现 **PDF 学习报告导出** 功能
+- [ ] 优化 Pyodide 初次加载速度 (CDN/Caching)

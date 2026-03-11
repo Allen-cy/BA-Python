@@ -10,7 +10,7 @@ export async function getPyodide(): Promise<PyodideInterface> {
 
   loadingPromise = (async () => {
     const pyodide = await loadPyodide({
-      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/',
+      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/',
       stdout: (text) => console.log('Python stdout:', text),
       stderr: (text) => console.error('Python stderr:', text),
     });
