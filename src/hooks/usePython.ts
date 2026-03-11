@@ -28,7 +28,6 @@ export function usePython() {
       });
 
       await pyodide.runPythonAsync(code);
-      
       return { success: true, logs };
     } catch (err: any) {
       const errMsg = err.message || '运行 Python 代码时出错';
@@ -39,5 +38,25 @@ export function usePython() {
     }
   }, []);
 
-  return { runCode, loading, output, error, setOutput };
+  const getFileData = useCallback(async (filename: string) => {
+    try {
+      const pyodide = await getPyodide();
+      // 获取文件内容并转换为 JSON
+      const result = await pyodide.runPythonAsync(`
+import pandas as pd
+import json
+try:
+    df = pd.read_csv('${filename}')
+    json.dumps(df.head(50).to_dict(orient='records'))
+except Exception as e:
+    json.dumps({"error": str(e)})
+      `);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('读取文件失败:', err);
+      return null;
+    }
+  }, []);
+
+  return { runCode, getFileData, loading, output, error, setOutput };
 }

@@ -15,6 +15,7 @@
 | 003 | UI 2.0 深度融合与全栈对接 | 优化 | 2026-03-10 | v1.1.0 |
 | 004 | 基础设施交付 (Git + SQL Fix) | 同步 | 2026-03-11 | v1.2.0 |
 | 005 | 交互式学习引擎 (Interactive Engine) | 新增 | 2026-03-11 | v1.3.0 |
+| 006 | IDE 增强与数据可视化 (IDE + Table) | 优化 | 2026-03-11 | v1.4.0 |
 
 #### 任务 #001 详情
 - **产出**：全量全栈架构，Supabase + Vercel 纯云端闭环
@@ -30,6 +31,10 @@
 - **产出**：集成 Pyodide (WASM)、Gemini 1.5 API 桥接及 `user_progress` 关联的实时雷达图
 - **决策**：使用浏览器端执行提升响应速度，利用 Edge Runtime 降低 API 响应延迟
 
+#### 任务 #006 详情
+- **产出**：集成 Monaco Editor (VS Code 内核)；新增数据预览 Table，支持实时读取 Pyodide 虚拟文件系统
+- **决策**：使用 `@monaco-editor/react` 降低打包体积；通过 `json.dumps(df.to_dict())` 实现 Python 与 React 的高性能数据交换
+
 ---
 
 ### 🔄 进行中
@@ -44,6 +49,5 @@
 
 | # | 任务 | 优先级 | 预计版本 |
 |---|------|--------|----------|
-| 006 | 课程预览系统 (Data Table Preview) | P1 | v1.4.0 |
-| 007 | 集成 Monaco Editor | P1 | v1.4.0 |
+| 007 | 课程预览系统 (Data Table Preview - 全量) | P2 | v1.5.0 |
 | 008 | 导出学习报告 | P2 | v2.0.0 |
