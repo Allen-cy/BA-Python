@@ -1,7 +1,8 @@
 import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-import { Code2, Database, CheckCircle2, User as UserIcon, LogOut, Mail, Loader2 } from 'lucide-react';
+import { Code2, Database, CheckCircle2, User as UserIcon, LogOut, Mail, Loader2, FileDown, Award } from 'lucide-react';
 import { useUserStats } from '../hooks/useUserStats';
+import { exportElementToPDF } from '../utils/pdfExport';
 
 interface PersonalCenterViewProps {
   user: any;
@@ -10,6 +11,21 @@ interface PersonalCenterViewProps {
 
 export const PersonalCenterView: React.FC<PersonalCenterViewProps> = ({ user, onSignOut }) => {
   const { stats, loading: statsLoading } = useUserStats(user?.id);
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      // 给 DOM 渲染留一点缓冲时间，特别是 Recharts 动画
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await exportElementToPDF('personal-report-content', `BA-Python-Report-${user?.display_name || 'Student'}.pdf`);
+    } catch (error) {
+      console.error('导出 PDF 失败:', error);
+      alert('导出失败，请重试');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="p-8 max-w-5xl mx-auto w-full">
@@ -35,16 +51,38 @@ export const PersonalCenterView: React.FC<PersonalCenterViewProps> = ({ user, on
             </div>
           </div>
         </div>
-        <button 
-          onClick={onSignOut}
-          className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-red-100 transition-colors"
-        >
-          <LogOut size={18} />
-          退出登录
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleExport}
+            disabled={isExporting}
+            className="bg-[#ec5b13] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#d64a0a] transition-all shadow-lg shadow-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Award size={18} />}
+            {isExporting ? '生成中...' : '导出官方能力认证'}
+          </button>
+          <button 
+            onClick={onSignOut}
+            className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-red-100 transition-colors"
+          >
+            <LogOut size={18} />
+            退出登录
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div id="personal-report-content" className="space-y-8 bg-slate-50 p-4 rounded-3xl">
+        {/* Report Watermark/Header (Optional for PDF style) */}
+        <div className="hidden pdf-only flex justify-between items-center mb-6 pb-6 border-b-2 border-slate-200">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900">BA-PYTHON LEARNING CERTIFICATION</h1>
+            <p className="text-sm text-slate-500 font-medium italic">Official Skill Report • {new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="text-right">
+            <span className="text-xs font-bold text-[#ec5b13] uppercase tracking-widest">Authenticated by BA-Python AI</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Stats & Snippets */}
         <div className="lg:col-span-2 space-y-8">
           {/* Stats */}
@@ -125,6 +163,7 @@ export const PersonalCenterView: React.FC<PersonalCenterViewProps> = ({ user, on
           <p className="mt-4 text-center text-xs text-slate-400 leading-relaxed px-4">
             该评估基于您的代码正确率、业务逻辑处理速度以及自动化方案的覆盖度实时生成。
           </p>
+        </div>
         </div>
       </div>
     </div>

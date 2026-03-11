@@ -1,22 +1,24 @@
-# 任务 #012：切换 AI 引擎至 Kimi (Moonshot AI)
+# 任务 #013：实现学习报告 PDF 导出功能
 
 ## 📌 任务元数据
 
-- **指令类型**: 优化 / 平台切换 (Refactoring)
-- **触发来源**: 用户要求将 API 从 Gemini 切换为 Kimi
-- **关联版本**: v1.6.4
+- **指令类型**: 新增 (Major Feature)
+- **触发来源**: 迭代计划 v2.0.0 阶段目标
+- **关联版本**: v2.0.0
 
 ## 🎯 目标
 
-1. 确保项目中所有的 AI 接口调用均使用 Moonshot (Kimi) 服务。
-2. 移除旧版本的 Gemini 依赖包 (`@google/genai`, `@google/generative-ai`)。
-3. 清理前端 UI 中的硬编码 "Gemini 1.5 Pro" 文案，替换为 "Kimi (Moonshot AI)"。
-4. 全面更新文档体系，包括 `product_life.md` 等，反映本次引擎变更。
+1. 在个人中心 (PersonalCenterView) 添加“导出官方能力认证”按钮。
+2. 实现基于当前页面数据的 PDF 导出功能。
+3. PDF 需包含：精美页眉、用户信息、能力画像雷达图、学习统计数据、以及通关案例清单。
+4. 确保导出样式专业且具商业感。
 
 ## 🛠️ 执行步骤
 
-- [x] 1. 代码及依赖清理：从 `package.json` 卸载 Google AI SDK。
-- [x] 2. UI 更新：修改 `src/views/WorkspaceView.tsx` 底部状态栏。
-- [x] 3. 验证功能：运行 `npm run lint` 与 `npm run build` 确保无残余代码。
-- [x] 4. 文档联动：按超级协议规范更新所有相关 Markdown 文件。
-- [x] 5. 同步上云：执行 Git 提交流程并 push。
+- [x] 1. 环境准备：安装 `jspdf` 和 `html2canvas` 依赖。
+- [x] 2. UI 升级：在 `PersonalCenterView.tsx` 中添加导出按钮。
+- [x] 3. 核心逻辑：实现 `exportToPDF` 工具函数。
+- [x] 4. 样式优化：专门为导出视图优化 CSS。
+- [x] 5. 验证：手动导出并检查 PDF 的视觉效果。
+- [x] 6. 文档更新：同步更新 `product_life.md` 与其他核心文档。
+- [x] 7. 同步上云：执行 Git 提交流程并 push。
