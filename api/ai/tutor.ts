@@ -48,7 +48,7 @@ ${error || "暂无报错，但学生需要指导"}
 
   try {
     const completion = await client.chat.completions.create({
-      model: "moonshot-v1-8k",
+      model: "kimi-k2.5",
       messages: [
         { role: "system", content: "你是一位专业的商业分析 (BA) 和 Python 导师。" },
         { role: "user", content: prompt },

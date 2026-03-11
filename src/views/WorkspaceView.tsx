@@ -465,7 +465,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
         <div className="flex items-center gap-4 text-[10px] text-slate-400 font-medium">
           <span className="flex items-center gap-1"><Cloud size={12} className="text-blue-400" /> Vercel Cloud Sync</span>
           <span className="flex items-center gap-1"><Cpu size={12} className="text-green-500" /> Runtime: Python 3.11 WASM</span>
-          <span className="flex items-center gap-1 font-bold text-[#ec5b13]/60"><Sparkles size={12} /> LLM: Kimi (Moonshot)</span>
+          <span className="flex items-center gap-1 font-bold text-[#ec5b13]/60"><Sparkles size={12} /> LLM: Kimi 2.5 (Moonshot)</span>
           <span className="ml-4 flex items-center gap-1"><Database size={12} /> Local Storage: IndexedDB</span>
         </div>
       </footer >
