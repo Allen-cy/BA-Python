@@ -1,6 +1,7 @@
 import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-import { Code2, Database, CheckCircle2, User as UserIcon, LogOut, Mail } from 'lucide-react';
+import { Code2, Database, CheckCircle2, User as UserIcon, LogOut, Mail, Loader2 } from 'lucide-react';
+import { useUserStats } from '../hooks/useUserStats';
 
 interface PersonalCenterViewProps {
   user: any;
@@ -8,13 +9,7 @@ interface PersonalCenterViewProps {
 }
 
 export const PersonalCenterView: React.FC<PersonalCenterViewProps> = ({ user, onSignOut }) => {
-  const userSkills = [
-    { subject: '数据清洗', A: 65, fullMark: 100 },
-    { subject: '统计分析', A: 40, fullMark: 100 },
-    { subject: '数据可视化', A: 55, fullMark: 100 },
-    { subject: '业务逻辑', A: 80, fullMark: 100 },
-    { subject: '自动化', A: 30, fullMark: 100 },
-  ];
+  const { stats, loading: statsLoading } = useUserStats(user?.id);
 
   return (
     <div className="p-8 max-w-5xl mx-auto w-full">
@@ -101,11 +96,19 @@ export const PersonalCenterView: React.FC<PersonalCenterViewProps> = ({ user, on
         </div>
 
         {/* Right Column: Radar Chart */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
           <h3 className="text-lg font-bold mb-6 text-center">BA 能力画像</h3>
+          
+          {statsLoading && (
+            <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
+              <Loader2 className="animate-spin text-orange-500 mb-2" />
+              <p className="text-xs text-slate-400 font-medium">分析数据中...</p>
+            </div>
+          )}
+
           <div className="flex-1 min-h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={userSkills}>
+              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={stats}>
                 <PolarGrid stroke="#e2e8f0" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Play, CheckCircle, Terminal, Table, BarChart2, Cloud, Cpu, Hexagon, User,
-  GraduationCap, FileText, Database, Lightbulb, Code
+  GraduationCap, FileText, Database, Lightbulb, Code, Sparkles, Loader2, X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { usePython } from '../hooks/usePython';
+import { useAITutor } from '../hooks/useAITutor';
 
 interface WorkspaceViewProps {
   onNavigate: (view: string) => void;
@@ -16,41 +18,52 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onNavigate, lesson, user, onSubmitCode 
 }) => {
   const [code, setCode] = useState('');
-  const [output, setOutput] = useState<string[]>([
-    "[系统] 环境准备就绪。Pyodide 加载成功。",
-    "[系统] 本地数据上下文已注入。"
-  ]);
+  const [activeTab, setActiveTab] = useState<'terminal' | 'ai'>('terminal');
   const [showToast, setShowToast] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { runCode, loading: pyLoading, output: pyOutput, error: pyError, setOutput: setPyOutput } = usePython();
+  const { askTutor, loading: aiLoading, feedback: aiFeedback, setFeedback: setAiFeedback } = useAITutor();
 
   useEffect(() => {
     if (lesson) {
       setCode(lesson.starter_code || '');
+      setPyOutput(["[系统] 环境准备就绪。Python 3.11 (Pyodide) 已加载。", "[系统] 商业数据集 crm_raw_data.csv 已就绪。"]);
     }
-  }, [lesson]);
+  }, [lesson, setPyOutput]);
 
-  const handleRun = () => {
-    setOutput([...output, ">>> 正在执行代码...", ">>> 运行结果: " + (code.includes('print') ? '最优渠道已找到' : '代码运行中...')]);
+  const handleRun = async () => {
+    const result = await runCode(code);
+    if (!result.success) {
+      // 自动切到 AI 引导
+      // setActiveTab('ai'); 
+    }
+  };
+
+  const handleAskAI = async () => {
+    setActiveTab('ai');
+    await askTutor(lesson, code, pyError);
   };
 
   const handleSubmit = async () => {
     if (!lesson) return;
     setIsSubmitting(true);
     try {
-      // Logic for validation would go here
-      const isPassed = true; 
+      // 简单验证：必须有输出且无错误
+      const isPassed = pyOutput.length > 0 && !pyError; 
       
-      await onSubmitCode(lesson.id, code, "Challenge passed", isPassed);
+      await onSubmitCode(lesson.id, code, pyOutput.join('\n'), isPassed);
       
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ec5b13', '#0f4c81', '#22c55e']
-      });
-
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
+      if (isPassed) {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#ec5b13', '#0f4c81', '#22c55e']
+        });
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 4000);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -157,10 +170,10 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
           <div className="p-4 border-t border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium">任务完成进度</span>
-              <span className="text-xs font-bold text-[#ec5b13]">45%</span>
+              <span className="text-xs font-bold text-[#ec5b13]">{user?.progress || '25%'}</span>
             </div>
             <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[#ec5b13] h-full" style={{ width: '45%' }}></div>
+              <div className="bg-[#ec5b13] h-full" style={{ width: user?.progress || '25%' }}></div>
             </div>
           </div>
         </aside>
@@ -177,13 +190,17 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={handleRun} className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-md text-xs font-bold hover:bg-blue-700 transition-colors">
-                  <Play size={14} fill="currentColor" />
-                  运行
+                <button 
+                  onClick={handleRun} 
+                  disabled={pyLoading}
+                  className="flex items-center gap-1 px-3 py-1 bg-[#ec5b13] text-white rounded-md text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                >
+                  {pyLoading ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="currentColor" />}
+                  {pyLoading ? '加载中...' : '运行代码'}
                 </button>
                 <button 
                    onClick={handleSubmit} 
-                   disabled={isSubmitting}
+                   disabled={isSubmitting || pyLoading}
                    className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-md text-xs font-bold hover:bg-green-700 transition-colors disabled:opacity-50"
                 >
                   <CheckCircle size={14} />
@@ -191,39 +208,108 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                 </button>
               </div>
             </div>
-            <div className="flex-1 p-4 font-mono text-sm overflow-auto text-slate-300 leading-relaxed">
+            <div className="flex-1 p-4 font-mono text-sm overflow-auto text-slate-300 leading-relaxed scrollbar-dark">
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full h-full bg-transparent text-slate-300 outline-none resize-none font-mono focus:ring-0"
+                className="w-full h-full bg-transparent text-slate-300 outline-none resize-none font-mono focus:ring-0 leading-relaxed"
                 spellCheck={false}
+                placeholder="# 在此处编写您的 Python 代码..."
               />
             </div>
           </div>
 
           {/* Bottom Right: Result Tabs */}
-          <div className="h-1/3 min-h-[250px] flex flex-col bg-white border-t border-slate-200">
-            <div className="flex border-b border-slate-200 px-4">
-              <button className="px-4 py-2 text-xs font-bold border-b-2 border-[#ec5b13] text-[#ec5b13] flex items-center gap-2">
+          <div className="h-1/3 min-h-[250px] flex flex-col bg-white border-t border-slate-200 relative">
+            <div className="flex border-b border-slate-200 px-4 bg-slate-50/50">
+              <button 
+                onClick={() => setActiveTab('terminal')}
+                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'terminal' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
+              >
                 <Terminal size={16} />
-                输出
+                执行控制台 {pyError && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
               </button>
-              <button className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-600 flex items-center gap-2">
-                <Table size={16} />
-                数据预览
+              <button 
+                onClick={() => setActiveTab('ai')}
+                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'ai' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
+              >
+                <Sparkles size={16} />
+                AI 助教建议
               </button>
+              
+              <div className="ml-auto flex items-center">
+                <button 
+                  onClick={handleAskAI}
+                  className="px-3 py-1 bg-orange-50 text-[#ec5b13] text-[10px] font-black rounded-full border border-orange-100 hover:bg-orange-100 transition-colors flex items-center gap-1"
+                >
+                  <Sparkles size={12} fill="currentColor" />
+                  向 AI 老师求助
+                </button>
+              </div>
             </div>
-            <div className="flex-1 overflow-auto p-4 bg-slate-50 font-mono text-xs text-slate-700 leading-relaxed">
-              {output.map((line, index) => (
-                <div key={index} className="mt-1">
-                  {line.startsWith('[系统]') ? (
-                    <span className="text-blue-500 font-bold">{line}</span>
-                  ) : line.startsWith('>>>') ? (
-                    <span className="text-[#ec5b13]">{line}</span>
-                  ) : line}
+
+            <div className="flex-1 overflow-auto bg-white">
+              {activeTab === 'terminal' ? (
+                <div className="p-4 font-mono text-xs leading-relaxed">
+                  {pyOutput.length === 0 && !pyError && (
+                    <div className="text-slate-300 italic">等待代码运行...</div>
+                  )}
+                  {pyOutput.map((line, index) => (
+                    <div key={index} className="mt-1 text-slate-600">
+                      {line.startsWith('[系统]') ? (
+                        <span className="text-blue-500 font-bold">{line}</span>
+                      ) : (
+                        <span>{line}</span>
+                      )}
+                    </div>
+                  ))}
+                  {pyError && (
+                    <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 whitespace-pre-wrap">
+                      <div className="font-bold flex items-center gap-2 mb-1">
+                         <X size={14} className="bg-red-500 text-white rounded-full p-0.5" /> 运行错误 (Runtime Error)
+                      </div>
+                      {pyError}
+                      <button 
+                        onClick={handleAskAI}
+                        className="mt-2 block text-[10px] bg-red-600 text-white px-2 py-1 rounded font-bold hover:bg-red-700"
+                      >
+                        让 AI 解释这个错误
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
-              <div className="text-slate-400 animate-pulse mt-2">&gt; 准备就绪...</div>
+              ) : (
+                <div className="p-6 h-full flex flex-col">
+                  {aiLoading ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-3">
+                      <Loader2 size={32} className="animate-spin text-[#ec5b13]" />
+                      <p className="text-sm font-medium">AI 老师正在分析您的思路...</p>
+                    </div>
+                  ) : aiFeedback ? (
+                    <div className="prose prose-sm max-w-none text-slate-600 leading-relaxed bg-orange-50/30 p-5 rounded-2xl border border-orange-100/50">
+                      <div className="flex items-center gap-2 mb-4 text-[#ec5b13]">
+                        <div className="w-8 h-8 bg-[#ec5b13] rounded-xl flex items-center justify-center text-white">
+                          <Sparkles size={18} fill="currentColor" />
+                        </div>
+                        <span className="font-bold">AI 助教反馈</span>
+                      </div>
+                      <div className="whitespace-pre-wrap text-sm">{aiFeedback}</div>
+                      <button 
+                        onClick={() => setAiFeedback(null)}
+                        className="mt-6 text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1"
+                      >
+                         清空建议
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-300 text-center px-10">
+                      <Sparkles size={48} className="mb-4 opacity-20" />
+                      <p className="text-sm font-medium text-slate-400">点击右侧的“向 AI 老师求助”按钮</p>
+                      <p className="text-xs mt-1">AI 将根据您的当前代码和任务背景给出启发式指导</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -233,9 +319,10 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
       <footer className="bg-white border-t border-slate-200 px-6 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4 text-[10px] text-slate-400">
           <span className="flex items-center gap-1"><Cloud size={12} /> 云端同步中...</span>
-          <span className="flex items-center gap-1"><Cpu size={12} /> 容器快照: ba-container-v2</span>
+          <span className="flex items-center gap-1"><Cpu size={12} /> Python 运行时: 3.11</span>
+          <span className="flex items-center gap-1 font-bold text-[#ec5b13]/60"><Sparkles size={12} /> Gemini 1.5 Powered</span>
         </div>
-      </footer>
+      </footer >
 
       {/* Toast Notification */}
       {showToast && (
