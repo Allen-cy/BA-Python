@@ -196,6 +196,7 @@ function getDefaultLesson(): Lesson {
       '过滤负数金额：df[df[\'spend\'] > 0]。',
     ],
     starter_code: `import pandas as pd\n\n# 1. 加载 CRM 原始数据\ndf_crm = pd.read_csv('crm_raw_data.csv')\n\n# 2. 清洗逻辑开始\n# TODO: 处理 spend 列中的负数\ndf_clean = df_crm[df_crm['spend'] > 0]\n\n# 3. 打印结果摘要\nprint("清洗后的数据行数:", len(df_clean))`,
+    validation_code: "'df_clean' in locals() and len(df_clean) == 95",
     sort_order: 1,
     created_at: new Date().toISOString(),
   };

@@ -42,6 +42,7 @@ export interface Lesson {
   data_dictionary: DataField[];
   hints: string[];
   starter_code: string;
+  validation_code?: string; // 新增：用于评测代码的 Python 脚本
   sort_order: number;
   created_at: string;
 }

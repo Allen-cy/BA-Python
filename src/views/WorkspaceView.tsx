@@ -25,7 +25,15 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  const { runCode, getFileData, loading: pyLoading, output: pyOutput, error: pyError, setOutput: setPyOutput } = usePython();
+  const { 
+    runCode, 
+    validateCode, 
+    getFileData, 
+    loading: pyLoading, 
+    output: pyOutput, 
+    error: pyError, 
+    setOutput: setPyOutput 
+  } = usePython();
   const { askTutor, loading: aiLoading, feedback: aiFeedback, setFeedback: setAiFeedback } = useAITutor();
 
   useEffect(() => {
@@ -46,11 +54,8 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   };
 
   const handleRun = async () => {
-    const result = await runCode(code);
-    if (result.success) {
-      // 运行成功后尝试刷新数据预览（如果代码里有修改文件的话）
-      // loadPreviewData();
-    }
+    await runCode(code);
+    setActiveTab('terminal');
   };
 
   const handleAskAI = async () => {
@@ -61,9 +66,14 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   const handleSubmit = async () => {
     if (!lesson) return;
     setIsSubmitting(true);
+    setActiveTab('terminal');
+    
     try {
-      const isPassed = pyOutput.length > 0 && !pyError; 
-      await onSubmitCode(lesson.id, code, pyOutput.join('\n'), isPassed);
+      // 执行系统级评测
+      const result = await validateCode(code, lesson.validation_code);
+      const isPassed = result.success && result.isPassed;
+      
+      await onSubmitCode(lesson.id, code, result.logs.join('\n'), isPassed);
       
       if (isPassed) {
         confetti({
@@ -74,6 +84,13 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
         });
         setShowToast(true);
         setTimeout(() => setShowToast(false), 4000);
+      } else {
+        // 如果没通过，在控制台给个醒目的提示
+        setPyOutput(prev => [...prev, "\n[系统提示] 代码运行成功，但未达成业务目标。请检查逻辑或求助 AI 助教。"]);
+        if (!result.success) {
+           // 如果是语法错误
+           // handleAskAI();
+        }
       }
     } catch (error) {
       console.error(error);

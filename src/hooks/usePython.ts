@@ -38,6 +38,44 @@ export function usePython() {
     }
   }, []);
 
+  const validateCode = useCallback(async (code: string, validationCode?: string) => {
+    setLoading(true);
+    setError(null);
+    const logs: string[] = [];
+
+    try {
+      const pyodide = await getPyodide();
+      
+      // 捕获输出
+      pyodide.setStdout({
+        batched: (text) => {
+          logs.push(text);
+          setOutput([...logs]);
+        }
+      });
+
+      // 1. 运行用户代码
+      await pyodide.runPythonAsync(code);
+
+      // 2. 如果没有验证脚本，默认通过
+      if (!validationCode) {
+        return { success: true, isPassed: true, logs };
+      }
+
+      // 3. 运行验证脚本并获取布尔返回值
+      // 验证脚本通常是： 'condition1' and 'condition2'
+      const isPassed = await pyodide.runPythonAsync(validationCode);
+      
+      return { success: true, isPassed: !!isPassed, logs };
+    } catch (err: any) {
+      const errMsg = err.message || '评测代码时出错';
+      setError(errMsg);
+      return { success: false, isPassed: false, error: errMsg };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const getFileData = useCallback(async (filename: string) => {
     try {
       const pyodide = await getPyodide();
@@ -58,5 +96,5 @@ except Exception as e:
     }
   }, []);
 
-  return { runCode, getFileData, loading, output, error, setOutput };
+  return { runCode, validateCode, getFileData, loading, output, error, setOutput };
 }
