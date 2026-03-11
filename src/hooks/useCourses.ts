@@ -183,7 +183,32 @@ function getDefaultLesson(): Lesson {
     id: 'default-lesson-1',
     course_id: 'default-2',
     title: 'CRM 脏数据清洗',
-    content: '在这个实战课节中，你将学习如何使用 Pandas 对 CRM 系统导出的原始数据进行清洗处理。',
+    content: '1. 处理 <b>spend</b> 列中的负数值（异常数据）。<br/>2. 删除所有 <b>customer_id</b> 为空的行（缺失值）。<br/>3. 计算清洗后 <b>spend</b> 的总额并赋值给 <code>total_revenue</code>。',
+    theory_content: `### 🧺 Pandas 基础清洗三板斧
+
+作为商业分析师，你 80% 的时间都在处理“脏数据”。在 Python 中，Pandas 提供了类似 Excel “删除重复项”和“筛选”的高级功能。
+
+#### 1. 处理缺失值 (NaN)
+缺失数据在 Pandas 中以 \`NaN\` (Not a Number) 表示。
+\`\`\`python
+# 删除包含任何空值的行
+df.dropna(subset=['列名'])
+\`\`\`
+
+#### 2. 数据布尔索引 (筛选)
+这是最强大的功能。你可以像写 SQL 里的 WHERE 一样过滤数据。
+\`\`\`python
+# 只保留金额大于 0 的有效订单
+df_clean = df[df['amount'] > 0]
+\`\`\`
+
+#### 3. 数学聚合
+\`\`\`python
+# 计算某一列的总和
+total = df['amount'].sum()
+\`\`\`
+
+> **小贴士**：在 BA 实战中，金额为负通常是退款或者系统录入错误，记得要先沟通业务逻辑再决定是删除还是取绝对值。`,
     business_background: '公司的 CRM（客户关系管理）系统最近导入了一批原始数据，但由于采集渠道不同，存在大量的重复记录、缺失值以及异常的消费金额。\n\n作为商业分析师，你的任务是使用 Python 的 Pandas 库对这批数据进行"大扫除"，确保后续的 RFM 模型分析能够基于准确的数据进行。',
     data_dictionary: [
       { field_name: 'customer_id', description: '唯一客户 ID', data_type: 'String' },
@@ -195,8 +220,9 @@ function getDefaultLesson(): Lesson {
       '使用 df.drop_duplicates() 移除重复行。',
       '过滤负数金额：df[df[\'spend\'] > 0]。',
     ],
-    starter_code: `import pandas as pd\n\n# 1. 加载 CRM 原始数据\ndf_crm = pd.read_csv('crm_raw_data.csv')\n\n# 2. 清洗逻辑开始\n# TODO: 处理 spend 列中的负数\ndf_clean = df_crm[df_crm['spend'] > 0]\n\n# 3. 打印结果摘要\nprint("清洗后的数据行数:", len(df_clean))`,
-    validation_code: "'df_clean' in locals() and len(df_clean) == 95",
+    starter_code: `import pandas as pd\n\n# 1. 加载 CRM 原始数据\ndf_crm = pd.read_csv('crm_raw_data.csv')\n\n# 2. 清洗逻辑开始\n# TODO: 处理 spend 列中的负数并删除 customer_id 为空的行\ndf_clean = df_crm.dropna(subset=['customer_id'])\ndf_clean = df_clean[df_clean['spend'] > 0]\n\n# 3. 计算结果\ntotal_revenue = df_clean['spend'].sum()\n\n# 4. 打印结果摘要\nprint(f"清洗后的有效数据行数: {len(df_clean)}")\nprint(f"当前总业绩: {total_revenue}")`,
+    validation_code: "total_revenue > 0 and 'df_clean' in locals()",
+    video_url: 'https://example.com/video',
     sort_order: 1,
     created_at: new Date().toISOString(),
   };

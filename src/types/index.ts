@@ -38,11 +38,13 @@ export interface Lesson {
   course_id: string;
   title: string;
   content: string;
-  business_background: string;
-  data_dictionary: DataField[];
+  theory_content?: string; // 新增：Python 基础知识/理论内容
+  business_background?: string;
+  data_dictionary?: { field_name: string; description: string; data_type: string }[];
   hints: string[];
   starter_code: string;
-  validation_code?: string; // 新增：用于评测代码的 Python 脚本
+  validation_code: string; // 自动化评测代码
+  video_url?: string; // 可选：视频讲解链接
   sort_order: number;
   created_at: string;
 }

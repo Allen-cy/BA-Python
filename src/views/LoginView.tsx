@@ -15,12 +15,20 @@ export default function LoginView({ onLogin, onSignUp, onSkip, loading }: LoginV
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      await onLogin(email, password);
-    } else {
-      await onSignUp(email, password, displayName);
+    setErrorMsg('');
+    try {
+      if (isLogin) {
+        await onLogin(email, password);
+      } else {
+        await onSignUp(email, password, displayName);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || '登录失败，请检查账号密码或网络连接。');
     }
   };
 
@@ -116,6 +124,13 @@ export default function LoginView({ onLogin, onSignUp, onSkip, loading }: LoginV
                 />
               </div>
             </div>
+
+            {errorMsg && (
+              <div className="p-3 bg-red-50 text-red-600 text-xs rounded-xl font-medium border border-red-100 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full shrink-0" />
+                {errorMsg}
+              </div>
+            )}
 
             <button 
               type="submit"

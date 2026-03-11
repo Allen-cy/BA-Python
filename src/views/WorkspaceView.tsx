@@ -19,11 +19,13 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onNavigate, lesson, user, onSubmitCode 
 }) => {
   const [code, setCode] = useState('');
-  const [activeTab, setActiveTab] = useState<'terminal' | 'ai' | 'preview'>('terminal');
+  const [rightPanelActiveTab, setRightPanelActiveTab] = useState<'terminal' | 'ai' | 'preview'>('terminal');
   const [showToast, setShowToast] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [isAIOpen, setIsAIOpen] = useState(false); // New state for AI tutor panel
+  const [leftPanelActiveTab, setLeftPanelActiveTab] = useState<'theory' | 'practice'>('theory'); // New state for left panel tabs
 
   const { 
     runCode, 
@@ -55,18 +57,18 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
 
   const handleRun = async () => {
     await runCode(code);
-    setActiveTab('terminal');
+    setRightPanelActiveTab('terminal');
   };
 
   const handleAskAI = async () => {
-    setActiveTab('ai');
+    setRightPanelActiveTab('ai');
     await askTutor(lesson, code, pyError);
   };
 
   const handleSubmit = async () => {
     if (!lesson) return;
     setIsSubmitting(true);
-    setActiveTab('terminal');
+    setRightPanelActiveTab('terminal');
     
     try {
       // 执行系统级评测
@@ -137,56 +139,111 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
       {/* Main Workspace */}
       <main className="flex-1 flex overflow-hidden">
         {/* Left Panel: Tutorial Content */}
-        <aside className="w-1/3 min-w-[320px] max-w-lg border-r border-slate-200 bg-white flex flex-col">
-          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-            <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">
+        <aside className="w-1/3 min-w-[320px] max-w-lg border-r border-slate-200 bg-white flex flex-col shadow-xl z-20">
+          {/* Left Panel Tabs */}
+          <div className="flex border-b border-slate-100 bg-slate-50/30">
+            <button 
+              onClick={() => setLeftPanelActiveTab('theory')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${leftPanelActiveTab === 'theory' ? 'text-[#ec5b13] border-[#ec5b13]' : 'text-slate-400 border-transparent hover:text-slate-600'}`}
+            >
               <GraduationCap size={16} />
-              {lesson.course_title || '课程实战'}
-            </div>
-            <h1 className="text-2xl font-bold mb-4">{lesson.title}</h1>
-            
-            <section className="mb-8">
-              <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                <FileText size={18} className="text-[#ec5b13]" />
-                业务场景 (Business Story)
-              </h3>
-              <p className="text-sm leading-relaxed text-slate-600">
-                {lesson.business_background}
-              </p>
-            </section>
+              基础知识 (Theory)
+            </button>
+            <button 
+              onClick={() => setLeftPanelActiveTab('practice')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${leftPanelActiveTab === 'practice' ? 'text-[#ec5b13] border-[#ec5b13]' : 'text-slate-400 border-transparent hover:text-slate-600'}`}
+            >
+              <FileText size={16} />
+              案例练习 (Practice)
+            </button>
+          </div>
 
-            {lesson.data_dictionary?.length > 0 && (
-              <section className="mb-8">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                  <Database size={18} className="text-[#ec5b13]" />
-                  数据字典 (Data Dictionary)
-                </h3>
-                <div className="space-y-2">
-                  {lesson.data_dictionary.map((item: any, i: number) => (
-                    <div key={i} className="flex items-start gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
-                      <code className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-red-600 font-bold">{item.field_name}</code>
-                      <span className="text-xs text-slate-500">{item.description}</span>
-                    </div>
-                  ))}
+          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+            {leftPanelActiveTab === 'theory' ? (
+              <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+                <div className="flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2 px-1">
+                  <div className="w-4 h-[2px] bg-[#ec5b13]"></div>
+                  Learning Base
                 </div>
-              </section>
-            )}
+                <h1 className="text-2xl font-black mb-6 tracking-tight">{lesson.title} - 知识点</h1>
+                
+                <div className="prose prose-sm prose-slate max-w-none">
+                  {lesson.theory_content ? (
+                     <div className="text-slate-600 leading-relaxed space-y-4 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: lesson.theory_content }} />
+                  ) : (
+                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-orange-800 text-sm">
+                      本节点暂无理论讲解。直接进入“案例练习”开始实操吧！
+                    </div>
+                  )}
+                </div>
+                
+                {lesson.video_url && (
+                  <div className="mt-8 p-4 bg-slate-900 rounded-xl flex items-center justify-between text-white shadow-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#ec5b13] rounded-full flex items-center justify-center">
+                        <Play size={20} fill="white" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold">视频精讲</div>
+                        <div className="text-[10px] text-slate-400">点击查看导师点评</div>
+                      </div>
+                    </div>
+                    <button className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[10px] font-bold transition-colors">立即观看</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="animate-in fade-in slide-in-from-right-2 duration-300">
+                <div className="flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2 px-1">
+                  <div className="w-4 h-[2px] bg-[#ec5b13]"></div>
+                  Business Case
+                </div>
+                <h1 className="text-2xl font-black mb-6 tracking-tight">实战挑战</h1>
+                
+                <section className="mb-8">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Cloud size={14} className="text-[#ec5b13]" />
+                    业务场景
+                  </h3>
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed text-slate-600">
+                    {lesson.business_background}
+                  </div>
+                </section>
 
-            <section className="mb-8">
-              <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <Lightbulb size={18} className="text-[#ec5b13]" />
-                挑战任务 (Task)
-              </h3>
-              <div className="prose prose-sm text-slate-600" dangerouslySetInnerHTML={{ __html: lesson.content }} />
-              <ul className="mt-4 space-y-2">
-                {lesson.hints?.map((hint: string, i: number) => (
-                  <li key={i} className="text-xs text-slate-400 flex items-start gap-2 italic">
-                    <span className="text-[#ec5b13] shrink-0">提示:</span>
-                    {hint}
-                  </li>
-                ))}
-              </ul>
-            </section>
+                {lesson.data_dictionary?.length > 0 && (
+                  <section className="mb-8">
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <Database size={14} className="text-[#ec5b13]" />
+                      数据字典
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2">
+                      {lesson.data_dictionary.map((item: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50">
+                          <code className="text-[10px] text-red-600 font-black">{item.field_name}</code>
+                          <span className="text-[10px] text-slate-400">{item.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                <section className="mb-8">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Lightbulb size={14} className="text-[#ec5b13]" />
+                    任务目标
+                  </h3>
+                  <div className="text-sm text-slate-600 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: lesson.content }} />
+                  <div className="mt-6 flex flex-col gap-2">
+                    {lesson.hints?.map((hint: string, i: number) => (
+                      <div key={i} className="group flex items-start gap-2 text-[11px] text-slate-400 hover:text-slate-500 transition-colors">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#ec5b13] mt-1.5 group-hover:scale-125 transition-transform"></div>
+                        {hint}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
           </div>
           
           <div className="p-4 border-t border-slate-200">
@@ -263,22 +320,22 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
           <div className="h-1/3 min-h-[300px] flex flex-col bg-white border-t border-slate-200 relative">
             <div className="flex border-b border-slate-200 px-4 bg-slate-50/50">
               <button 
-                onClick={() => setActiveTab('terminal')}
-                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'terminal' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
+                onClick={() => setRightPanelActiveTab('terminal')}
+                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${rightPanelActiveTab === 'terminal' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
               >
                 <Terminal size={16} />
                 执行控制台 {pyError && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
               </button>
               <button 
-                onClick={() => setActiveTab('preview')}
-                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'preview' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
+                onClick={() => setRightPanelActiveTab('preview')}
+                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${rightPanelActiveTab === 'preview' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
               >
                 <Table size={16} />
                 数据预览 (Table)
               </button>
               <button 
-                onClick={() => setActiveTab('ai')}
-                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'ai' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
+                onClick={() => setRightPanelActiveTab('ai')}
+                className={`px-4 py-2 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${rightPanelActiveTab === 'ai' ? 'border-[#ec5b13] text-[#ec5b13]' : 'border-transparent text-slate-400'}`}
               >
                 <Sparkles size={16} />
                 AI 助教建议
@@ -296,7 +353,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             </div>
 
             <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-              {activeTab === 'terminal' && (
+              {rightPanelActiveTab === 'terminal' && (
                 <div className="p-4 font-mono text-xs leading-relaxed">
                   {pyOutput.length === 0 && !pyError && (
                     <div className="text-slate-300 italic">等待代码运行...</div>
@@ -327,7 +384,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                 </div>
               )}
 
-              {activeTab === 'preview' && (
+              {rightPanelActiveTab === 'preview' && (
                 <div className="p-0 h-full overflow-auto">
                   {previewLoading ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2">
@@ -366,7 +423,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                 </div>
               )}
 
-              {activeTab === 'ai' && (
+              {rightPanelActiveTab === 'ai' && (
                 <div className="p-6 h-full flex flex-col">
                   {aiLoading ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-3">
