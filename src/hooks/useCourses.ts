@@ -77,7 +77,7 @@ export function useCourses() {
   // 获取课节详情
   const fetchLesson = useCallback(async (courseId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data: lesson, error: lessonError } = await supabase
         .from('lessons')
         .select('*')
         .eq('course_id', courseId)
@@ -85,13 +85,23 @@ export function useCourses() {
         .limit(1)
         .single();
 
-      if (error) throw error;
-      setCurrentLesson(data);
-      return data;
+      if (lessonError) throw lessonError;
+
+      // 获取课程标题
+      const { data: course } = await supabase
+        .from('courses')
+        .select('title')
+        .eq('id', courseId)
+        .single();
+
+      const result = { ...lesson, course_title: course?.title || '' };
+      setCurrentLesson(result);
+      return result;
     } catch {
-      // 如果没有课节数据，使用静态备用
-      setCurrentLesson(getDefaultLesson());
-      return getDefaultLesson();
+      // 备用数据
+      const lesson = getDefaultLesson();
+      setCurrentLesson(lesson);
+      return lesson;
     }
   }, []);
 

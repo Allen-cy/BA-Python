@@ -1,0 +1,86 @@
+import React from 'react';
+import { MousePointerClick, PhoneCall, BarChart2 } from 'lucide-react';
+
+export const ProjectListView = ({ onNavigate }: { onNavigate: (view: string) => void }) => {
+  return (
+    <div className="p-8 max-w-7xl mx-auto w-full bg-[#f8f6f6] min-h-full">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">项目实战中心</h2>
+          <p className="text-slate-500 mt-2">基于真实脱敏数据的商业分析沙盘，从清洗到决策建模。</p>
+        </div>
+        <div className="flex gap-2">
+          <span className="px-4 py-2 bg-[#0f4c81] text-white rounded-full text-xs font-bold cursor-pointer">全部</span>
+          <span className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-50 cursor-pointer">电商/零售</span>
+          <span className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-50 cursor-pointer">公共服务/政务</span>
+          <span className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-50 cursor-pointer">金融/咨询</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Project 1 */}
+        <div className="group bg-white rounded-2xl border border-[#dee2e6] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+          <div className="h-32 bg-gradient-to-br from-blue-500 to-[#0f4c81] p-6 relative">
+            <span className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded font-bold uppercase">L1 基础</span>
+            <MousePointerClick className="text-white text-5xl opacity-30" size={48} />
+          </div>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold py-0.5 px-2 rounded bg-green-100 text-green-700 uppercase">引导式</span>
+              <span className="text-slate-400 text-[10px]">1,200 Rows</span>
+            </div>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-[#0f4c81] transition-colors">多渠道广告投放 ROI 自动化核算</h3>
+            <p className="text-sm text-slate-500 line-clamp-2 mb-4">通过 Python 遍历各渠道投放明细，自动输出全渠道 ROI 排名，解决重复人工核算痛点。</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Dict</span>
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Loops</span>
+            </div>
+            <button onClick={() => onNavigate('workspace')} className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors">进入实战</button>
+          </div>
+        </div>
+
+        {/* Project 2 */}
+        <div className="group bg-white rounded-2xl border border-[#dee2e6] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+          <div className="h-32 bg-gradient-to-br from-orange-400 to-[#ec5b13] p-6 relative">
+            <span className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded font-bold uppercase">L2 进阶</span>
+            <PhoneCall className="text-white text-5xl opacity-30" size={48} />
+          </div>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold py-0.5 px-2 rounded bg-amber-100 text-amber-700 uppercase">挑战式</span>
+              <span className="text-slate-400 text-[10px]">85,000 Rows</span>
+            </div>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-[#0f4c81] transition-colors">12356 热线服务效率与高峰预测</h3>
+            <p className="text-sm text-slate-500 line-clamp-2 mb-4">分析咨询热线原始接听记录，识别每日服务高峰时段，并计算各席位的平均处理效率。</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Pandas</span>
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Time Series</span>
+            </div>
+            <button onClick={() => onNavigate('workspace')} className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors">开始挑战</button>
+          </div>
+        </div>
+
+        {/* Project 3 */}
+        <div className="group bg-white rounded-2xl border border-[#dee2e6] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+          <div className="h-32 bg-gradient-to-br from-purple-500 to-indigo-600 p-6 relative">
+            <span className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded font-bold uppercase">L3 高阶</span>
+            <BarChart2 className="text-white text-5xl opacity-30" size={48} />
+          </div>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold py-0.5 px-2 rounded bg-green-100 text-green-700 uppercase">引导式</span>
+              <span className="text-slate-400 text-[10px]">150,000 Rows</span>
+            </div>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-[#0f4c81] transition-colors">全自动用户留存 (Cohort Analysis) 矩阵</h3>
+            <p className="text-sm text-slate-500 line-clamp-2 mb-4">利用电商流水数据自动生成月度留存热力图，识别高粘性用户群体的转化特征。</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Pivot Table</span>
+              <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500">Seaborn</span>
+            </div>
+            <button onClick={() => onNavigate('workspace')} className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors">进入实战</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

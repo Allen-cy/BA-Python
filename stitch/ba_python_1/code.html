@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BA-Python 商业分析 Python 学习</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f4c81", /* Corporate Blue */
+                        "background-light": "#f8f9fa",
+                        "background-dark": "#1a1c1e",
+                        "accent": "#ec5b13"
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .path-line {
+            background-image: linear-gradient(to bottom, transparent 50%, #dee2e6 50%);
+            background-size: 2px 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-none">BA-Python</h1>
+<p class="text-xs text-slate-500 mt-1">商业分析实战</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined fill-[1]">dashboard</span>
+<span>仪表盘</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span>课程目录</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span>社区问答</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>个人中心</span>
+</a>
+</nav>
+<div class="p-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<img alt="Avatar" class="size-10 rounded-full border border-slate-200 dark:border-slate-700" data-alt="User profile avatar of a businessman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChC3Ybk2yvjc62MegWQOGj1vFYCqUmpJSZjV2O8mxfCHllMWW5xKfcNGeejr5-nC0knamYaw7y0aHQi_zaVEJo4xMkcdjEnSqd3quZrJhzaWJR30hpWStsE3ApEvLRh6xbxM7u1YUWd1_bvVvvP6WxXAv2podgXGLfy5eNRREZDXhWlT9yBYk5JOYuWg4Uegiz_iYEcrwUpLh9y63zfCIpGpxDmqZZf5QXiADHHH29c1sYF6g_HIoFm_l5ikoGv-KwaSsYjPCoEt-c"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">王经理</p>
+<p class="text-xs text-slate-500 truncate">初级商业分析师</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Header -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-10 px-8 flex items-center justify-between">
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-xs font-semibold text-primary uppercase">总学习进度</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400">35%</span>
+</div>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 35%;"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">notifications</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
+                    继续学习
+                </button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 max-w-4xl mx-auto w-full">
+<div class="mb-10">
+<h2 class="text-3xl font-bold tracking-tight">我的学习路线图</h2>
+<p class="text-slate-500 mt-2">基于真实业务场景，从零构建 Python 商业分析能力</p>
+</div>
+<div class="relative space-y-0">
+<!-- Path line connecting elements -->
+<div class="absolute left-8 top-10 bottom-10 w-0.5 path-line z-0"></div>
+<!-- Stage 1 (Completed) -->
+<div class="relative z-10 flex gap-10 pb-16">
+<div class="size-16 rounded-full bg-green-500 flex items-center justify-center text-white ring-8 ring-green-50 dark:ring-green-900/20 flex-shrink-0">
+<span class="material-symbols-outlined text-3xl font-bold">check</span>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold">阶段 1: 基础商业 ROI 计算</h3>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-2 py-1 rounded font-bold uppercase">已完成</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 mb-4">掌握如何使用 Python 计算各种业务指标及投资回报率。通过 Python 基础语法和算数运算符解决实际商业投入产出分析问题。</p>
+<div class="flex items-center gap-4 text-xs font-medium text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 1.5 小时</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">database</span> 3 个业务案例</span>
+</div>
+</div>
+</div>
+<!-- Stage 2 (In Progress) -->
+<div class="relative z-10 flex gap-10 pb-16">
+<div class="size-16 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-primary/20 flex-shrink-0 animate-pulse">
+<span class="material-symbols-outlined text-3xl font-bold fill-[1]">play_arrow</span>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-primary shadow-xl shadow-primary/5">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold">阶段 2: 使用 Pandas 进行 CRM 数据清洗</h3>
+<span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded font-bold uppercase">进行中</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 mb-4">商业分析的核心是数据。学习使用 Pandas 处理真实 CRM 系统导出的脏数据：处理缺失值、异常值并整合多维度的客户表格。</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4 text-xs font-medium text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 4 小时</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">table_view</span> Pandas 核心库</span>
+</div>
+<button class="bg-primary text-white text-sm px-5 py-2 rounded-lg font-bold">继续当前课程</button>
+</div>
+</div>
+</div>
+<!-- Stage 3 (Locked) -->
+<div class="relative z-10 flex gap-10 pb-16 grayscale opacity-60">
+<div class="size-16 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 flex-shrink-0">
+<span class="material-symbols-outlined text-3xl">lock</span>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-800/30 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold">阶段 3: AARRR 漏斗可视化分析</h3>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-2 py-1 rounded font-bold uppercase">未解锁</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 mb-4">结合海盗模型（AARRR）进行流量转化分析。学习 Matplotlib 和 Seaborn 绘制漏斗图，识别业务转化瓶颈环节。</p>
+<div class="flex items-center gap-4 text-xs font-medium text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">bar_chart</span> 增长黑客模型</span>
+</div>
+</div>
+</div>
+<!-- Stage 4 (Locked) -->
+<div class="relative z-10 flex gap-10 grayscale opacity-60">
+<div class="size-16 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 flex-shrink-0">
+<span class="material-symbols-outlined text-3xl">lock</span>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-800/30 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold">阶段 4: RFM 客户价值模型构建</h3>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-2 py-1 rounded font-bold uppercase">未解锁</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 mb-4">高级客户分层模型。基于 R (近期消费)、F (消费频率)、M (消费金额) 三个维度，使用 Python 实现客户聚类，制定差异化运营策略。</p>
+<div class="flex items-center gap-4 text-xs font-medium text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">groups</span> 客户分群实战</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto border-t border-slate-200 dark:border-slate-800 p-8 bg-slate-50 dark:bg-slate-900/50">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<div>
+<p class="font-bold text-slate-900 dark:text-slate-100">需要帮助？</p>
+<p class="text-sm text-slate-500 mt-1">我们的课程导师 24/7 为您解答 Python 商业分析难题。</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">联系导师</button>
+<button class="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">下载学习资料</button>
+</div>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

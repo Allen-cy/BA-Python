@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 当前版本：v1.0.0
+## 📌 当前版本：v1.1.0
 
 ---
 
@@ -43,7 +43,7 @@
    - 在 `useCourses.ts` Hook 中实现了 fallback 机制：当 Supabase 不可用时自动使用静态备用数据
    - 确保应用在未配置数据库时依然可正常运行演示
 
-#### 🛠️ 执行细节
+#### 🛠️ 执行细节（任务 #001）
 
 | 工具/技能 | 用途 |
 |-----------|------|
@@ -56,14 +56,16 @@
 | `run_command` (git init/add/commit) | 版本控制 |
 
 **遇到的技术阻碍：**
+
 - TypeScript 类型检查报错 `import.meta.env` 未定义 → 解决方案：在 `supabase.ts` 顶部添加 `/// <reference types="vite/client" />`
 
 **最终结果：**
+
 - `npm run build` ✅ 构建通过
 - `npm run lint` ✅ TypeScript 零错误
 - 浏览器渲染 ✅ 登录页 + 仪表盘均正常
 
-#### 🔮 未来演进
+#### 🔮 未来演进（任务 #001）
 
 1. **短期计划**：
    - 用户配置 Supabase 项目后验证端到端数据流
@@ -80,7 +82,7 @@
    - 课程创作者后台
    - 用户学习数据分析仪表盘
 
-#### 📊 阶段总结
+#### 📊 阶段总结（任务 #001）
 
 本次任务将一个纯静态前端 React 应用成功改造为 **前后端一体的全栈 Web 应用**。共创建 17 个新文件，涵盖：
 - 6 个 Vercel Serverless API 端点
@@ -108,7 +110,7 @@
 2. 盘点项目现有文档：仅 `README.md` 和 `docs/development_checklist.md`，缺 10 份核心文档
 3. 逐一创建所有必需文档，确保格式和内容符合协议要求
 
-#### 🛠️ 执行细节
+#### 🛠️ 执行细节（任务 #002）
 
 创建以下文档：
 - `product_life.md` — 产品生命旅程（本文档）
@@ -122,6 +124,62 @@
 - `docs/conversation_summary.md` — 关键决策记录
 - `docs/conversation_history.md` — 完整对话历史
 
-#### 📊 阶段总结
+#### 📊 阶段总结（任务 #002）
 
 完成超级协议全部文档体系的初始化，共新增 10 份文档。后续每次迭代将自动增量更新。
+
+---
+
+### 📝 任务 #003 — UI 2.0 深度融合与全栈对接
+
+| 元数据 | 值 |
+|--------|-----|
+| **指令类型** | 优化 (Major Update) |
+| **时间戳** | 2026-03-10 21:30 ~ 22:30 (CST) |
+| **关联版本** | v1.1.0 |
+| **触发来源** | 用户请求：将 v2-python 中的新 UI 整合进现有全栈应用，实现更专业、更具商业感的界面 |
+
+#### 🧠 逻辑链路（任务 #003）
+
+1. **多维度对比**：对比 `v1.0.0` 与 `v2-python`。发现 `v2-python` 采用了更稳重的橙黑配色方案，引入了全新的组件设计（玻璃拟态、Hexagon 图标）以及新的视图（项目列表、个人中心）。
+2. **深度迁移方案**：
+   - **基础层**：更新 `package.json` 引入 `recharts` 和 `canvas-confetti`，提升数据可视化和动效体验。
+   - **组件层**：全量迁移 `Header` 和 `Sidebar`，使其具备更高审美。
+   - **视图层**：将 `DashboardView` 和 `WorkspaceView` 从静态 Vue 改写为数据驱动的 React 版本，并对接 `useCourses` 和 `useProgress`。
+   - **路由控制**：重构 `App.tsx` 的状态路由，支持 `dashboard`、`projects`、`profile`、`workspace` 的无缝切换。
+3. **认证层重构**：重新设计了 `LoginView`，使其视觉风格与 `v2` 保持高度统一，支持登录、注册和「游客演示」模式。
+4. **数据流打通**：
+   - `useCourses`：扩展 `fetchLesson` 方法，支持获取课程标题。
+   - `DashboardView`：实现从 Supabase 动态渲染课程关卡，支持进度状态显示。
+   - `WorkspaceView`：动态加载真实的业务场景和提示信息。
+
+#### 🛠️ 执行细节（任务 #003）
+
+| 工具/技能 | 用途 |
+|-----------|------|
+| `write_to_file` | 更新 `App.tsx` 正本，创建 `LoginView.tsx` |
+| `replace_file_content` | 修改 `useCourses.ts` 以支持关联查询 |
+| `git add/commit` | 提交变更：`feat: upgrade to UI 2.0 and integrate full-stack logic` |
+
+**遇到的技术阻碍：**
+
+- `v2-python` 采用的是硬编码导航，而 `v1.0.0` 是全栈驱动。
+- 解决方案：将 `currentView` 设为状态变量，并将其控制权在 `Sidebar`、`Header` 和 `Workspace` 之间共享。
+
+**最终结果：**
+
+- UI 风格升级成功，呈现高级商务感。
+- 用户数据、进度、课节详情全链路打通。
+
+#### 🔮 未来演进（任务 #003）
+
+1. **短期计划**：
+   - 在 `PersonalCenterView` 中展示真实的雷达图（基于提交数据的分析）。
+   - 在 `WorkspaceView` 中集成真实的 Python 解释器。
+
+2. **中期计划**：
+   - 实现「项目实战」的分领域刷题。
+
+#### 📊 阶段总结（任务 #003）
+
+成功完成了 Phase 2 的 UI 深度整合任务。应用现在拥有更专业的界面和完整的功能逻辑，版本号升级至 `v1.1.0`。

@@ -1,136 +1,128 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useCourses } from './hooks/useCourses';
 import { useProgress } from './hooks/useProgress';
-import LoginView from './components/LoginView';
-import DashboardView from './components/DashboardView';
-import WorkspaceView from './components/WorkspaceView';
-
-// 应用视图类型
-type AppView = 'login' | 'dashboard' | 'workspace';
+import { Sidebar } from './components/Sidebar';
+import { Header } from './components/Header';
+import { DashboardView } from './views/DashboardView';
+import { ProjectListView } from './views/ProjectListView';
+import { PersonalCenterView } from './views/PersonalCenterView';
+import { WorkspaceView } from './views/WorkspaceView';
+import LoginView from './views/LoginView';
 
 export default function App() {
-  const [view, setView] = useState<AppView>('login');
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [showDemo, setShowDemo] = useState(false);
+  
   const { user, loading: authLoading, signIn, signUp, signOut, isAuthenticated } = useAuth();
-  const { courses, currentLesson, loading: coursesLoading, fetchLesson } = useCourses();
-  const { submitCode, getTotalProgress, fetchProgress } = useProgress();
+  const { courses, loading: coursesLoading, fetchLesson, currentLesson } = useCourses();
+  const { fetchProgress, submitCode } = useProgress();
 
-  // 当用户认证状态变化时，切换视图
+  // Navigation handler
+  const handleNavigate = (view: string) => {
+    setCurrentView(view);
+  };
+
+  // Start course handler
+  const handleStartCourse = async (courseId: string) => {
+    await fetchLesson(courseId);
+    setCurrentView('workspace');
+  };
+
+  // Auth Effects
   useEffect(() => {
-    if (!authLoading) {
-      if (isAuthenticated && view === 'login') {
-        setView('dashboard');
-        fetchProgress();
-      }
+    if (isAuthenticated) {
+      fetchProgress();
     }
-  }, [isAuthenticated, authLoading, view, fetchProgress]);
+  }, [isAuthenticated, fetchProgress]);
 
-  // 登录处理
-  const handleLogin = useCallback(async (email: string, password: string) => {
+  // Login Handlers
+  const handleLogin = async (email: string, password: string) => {
     await signIn(email, password);
-    setView('dashboard');
-  }, [signIn]);
+  };
 
-  // 注册处理
-  const handleSignUp = useCallback(async (email: string, password: string, displayName: string) => {
+  const handleSignUp = async (email: string, password: string, displayName: string) => {
     await signUp(email, password, displayName);
-    setView('dashboard');
-  }, [signUp]);
+  };
 
-  // 跳过登录（演示模式）
-  const handleSkip = useCallback(() => {
-    setView('dashboard');
-  }, []);
+  const handleSkip = () => {
+    setShowDemo(true);
+  };
 
-  // 退出登录
-  const handleSignOut = useCallback(async () => {
+  // Sign out handler (passed via props)
+  const handleSignOut = async () => {
     await signOut();
-    setView('login');
-  }, [signOut]);
+    setShowDemo(false);
+  };
 
-  // 导航到工作台
-  const handleGoToWorkspace = useCallback(async () => {
-    // 查找当前进行中的课程
-    const inProgressCourse = courses.find(c => c.status === 'in_progress');
-    if (inProgressCourse) {
-      await fetchLesson(inProgressCourse.id);
-    }
-    setView('workspace');
-  }, [courses, fetchLesson]);
+  // Render Login if not authenticated and not in demo mode
+  if (!isAuthenticated && !showDemo && !authLoading) {
+    return (
+      <LoginView 
+        onLogin={handleLogin} 
+        onSignUp={handleSignUp} 
+        onSkip={handleSkip} 
+        loading={authLoading}
+      />
+    );
+  }
 
-  // 返回仪表盘
-  const handleGoToDashboard = useCallback(() => {
-    setView('dashboard');
-  }, []);
-
-  // 提交代码
-  const handleSubmitCode = useCallback(async (
-    lessonId: string,
-    code: string,
-    output: string,
-    isPassed: boolean
-  ) => {
-    await submitCode(lessonId, code, output, isPassed);
-  }, [submitCode]);
-
-  // 计算总进度
-  const totalProgress = courses.length > 0
-    ? Math.round(
-        courses.reduce((sum, c) => sum + c.progress_percent, 0) / courses.length
-      )
-    : 35;
-
-  // 认证加载中
+  // Loading States
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0f4c81] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white/60 text-sm">加载中...</p>
-        </div>
+      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[#ec5b13]/20 border-t-[#ec5b13] rounded-full animate-spin" />
       </div>
     );
   }
 
-  // 课程数据加载中
-  if (view !== 'login' && coursesLoading) {
+  // Workspace is a full-screen view
+  if (currentView === 'workspace') {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#0f4c81]/20 border-t-[#0f4c81] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-500 text-sm">加载课程数据...</p>
-        </div>
-      </div>
+      <WorkspaceView 
+        onNavigate={handleNavigate} 
+        lesson={currentLesson}
+        user={user}
+        onSubmitCode={submitCode}
+      />
     );
   }
 
   return (
-    <>
-      {view === 'login' && (
-        <LoginView
-          onLogin={handleLogin}
-          onSignUp={handleSignUp}
-          onSkip={handleSkip}
-          loading={authLoading}
+    <div className="flex h-screen overflow-hidden bg-[#f8f9fa] text-slate-900 font-sans">
+      <Sidebar currentView={currentView} onNavigate={handleNavigate} />
+      
+      <div className="flex-1 flex flex-col overflow-y-auto relative">
+        <Header 
+          onNavigate={handleNavigate} 
+          user={user} 
+          onSignOut={handleSignOut}
+          isAuthenticated={isAuthenticated}
         />
-      )}
-      {view === 'dashboard' && (
-        <DashboardView
-          onNavigate={handleGoToWorkspace}
-          courses={courses}
-          user={user}
-          totalProgress={totalProgress}
-          onSignOut={isAuthenticated ? handleSignOut : undefined}
-        />
-      )}
-      {view === 'workspace' && (
-        <WorkspaceView
-          onNavigate={handleGoToDashboard}
-          lesson={currentLesson}
-          user={user}
-          onSubmitCode={handleSubmitCode}
-        />
-      )}
-    </>
+        
+        <main className="flex-1">
+          {currentView === 'dashboard' && (
+            <DashboardView 
+              onNavigate={handleNavigate} 
+              onStartCourse={handleStartCourse}
+              courses={courses}
+              loading={coursesLoading}
+            />
+          )}
+          {currentView === 'projects' && (
+            <ProjectListView onNavigate={handleNavigate} />
+          )}
+          {currentView === 'profile' && (
+            <PersonalCenterView user={user} onSignOut={handleSignOut} />
+          )}
+          {currentView === 'community' && (
+            <div className="p-8 max-w-5xl mx-auto w-full text-center mt-20">
+              <h2 className="text-2xl font-bold text-slate-700">社区问答正在建设中...</h2>
+              <p className="text-slate-500 mt-2">敬请期待更多精彩内容</p>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }

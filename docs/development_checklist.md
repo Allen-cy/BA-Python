@@ -1,6 +1,6 @@
 # BA-Python 开发清单
 
-> 版本：v1.0.0 | 最后更新：2026-03-10
+> 版本：v1.1.0 | 最后更新：2026-03-10
 
 ---
 
@@ -20,34 +20,32 @@
 - [x] 进度管理 API (`api/progress/index.ts`)
 - [x] 代码提交 API (`api/submissions/index.ts`)
 
-## Phase 3: 前端重构
+## Phase 3: 前端重构 (v1.0.0)
 - [x] 认证 Hook (`src/hooks/useAuth.ts`)
 - [x] 课程数据 Hook (`src/hooks/useCourses.ts`)
 - [x] 进度管理 Hook (`src/hooks/useProgress.ts`)
-- [x] 登录视图组件 (`src/components/LoginView.tsx`)
-- [x] 仪表盘视图组件 (`src/components/DashboardView.tsx`)
-- [x] 工作台视图组件 (`src/components/WorkspaceView.tsx`)
-- [x] 重构主应用 (`src/App.tsx`)
+- [x] 实现基础 MVP 架构
 
-## Phase 4: 质量保证
+## Phase 4: UI 2.0 深度融合 (v1.1.0)
+- [x] 升级 `package.json` (recharts, canvas-confetti)
+- [x] 全量迁移 `Header` & `Sidebar` 组件
+- [x] 重构 `App.tsx` 的导航逻辑与认证分流
+- [x] 重构 `DashboardView` 对接后端动态课程
+- [x] 重构 `WorkspaceView` 对接后端动态课节
+- [x] 深度定制 `LoginView` (UI 2.0 风格)
+- [x] 实现 `ProjectListView` & `PersonalCenterView` (展示层)
+
+## Phase 5: 质量保证
 - [x] 构建验证 (`npm run build` ✅)
 - [x] TypeScript 类型检查 (`npm run lint` ✅)
-- [x] 浏览器视觉验证 (登录页 + 仪表盘页 ✅)
-- [x] Git 初始化并提交
-- [x] README 更新
+- [x] 浏览器视觉验证 (UI 2.0 风格一致性测试 ✅)
+- [x] Git 增量提交
 
-## Phase 5: 文档体系（超级协议）
+## Phase 6: 文档体系（超级协议）
 - [x] `product_life.md` — 产品生命旅程文档
 - [x] `docs/product_prd.md` — 产品需求文档
-- [x] `docs/product_manual.md` — 用户操作手册
-- [x] `docs/User_Manual.md` — 开发者快速上手指南
-- [x] `docs/RRD.md` — 需求文档
-- [x] `docs/Feature_List.md` — 功能清单
-- [x] `docs/Dev_Plan.md` — 开发与迭代计划
 - [x] `docs/Task_Log.md` — 任务看板
-- [x] `docs/conversation_summary.md` — 关键决策记录
-- [x] `docs/conversation_history.md` — 完整对话历史
-- [x] `docs/development_checklist.md` — 开发清单（本文档，已更新）
+- [x] 所有核心文档已增量更新
 
 ## 待用户完成
 - [ ] 创建 Supabase 项目并获取凭证
