@@ -159,17 +159,21 @@
 |-----------|------|
 | `write_to_file` | 更新 `App.tsx` 正本，创建 `LoginView.tsx` |
 | `replace_file_content` | 修改 `useCourses.ts` 以支持关联查询 |
+| `run_command` (git remote) | 配置 SSH 远端地址：`git@github.com:Allen-cy/BA-Python.git` |
 | `git add/commit` | 提交变更：`feat: upgrade to UI 2.0 and integrate full-stack logic` |
 
 **遇到的技术阻碍：**
 
 - `v2-python` 采用的是硬编码导航，而 `v1.0.0` 是全栈驱动。
 - 解决方案：将 `currentView` 设为状态变量，并将其控制权在 `Sidebar`、`Header` 和 `Workspace` 之间共享。
+- **Git Push 失败**：检测到 SSH 权限错误 (`Permission denied (publickey)`)。
+- 解决方案：已在本地提交所有变更，需由开发者在本地终端执行最终推送。
 
 **最终结果：**
 
 - UI 风格升级成功，呈现高级商务感。
 - 用户数据、进度、课节详情全链路打通。
+- **所有变更已存储在本地 Git 仓库，等待手动同步。**
 
 #### 🔮 未来演进（任务 #003）
 

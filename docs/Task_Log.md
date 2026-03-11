@@ -28,6 +28,7 @@
 - **输入**：用户要求将 `v2-python` 的新 UI 整合进现有全栈应用
 - **产出**：全面升级的 `App.tsx`、`LoginView`、`Header`、`Sidebar` 及数据驱动的业务视图
 - **决策**：采用状态驱动的细粒度路由，打通 Supabase 进度与 V2 UI 的实时关联
+- **同步**：已配置 SSH 远端 (`git@github.com:Allen-cy/BA-Python.git`)，由于权限限制，需要手动执行最终推送。
 
 ---
 

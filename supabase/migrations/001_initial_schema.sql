@@ -1,5 +1,5 @@
 -- ================================================
--- BA-Python 学习平台 - 数据库初始化脚本
+-- BA-Python 学习平台 - 数据库初始化脚本 (幂等增强版)
 -- 在 Supabase SQL Editor 中执行此脚本
 -- ================================================
 
@@ -86,58 +86,46 @@ CREATE INDEX IF NOT EXISTS idx_code_submissions_lesson_id ON public.code_submiss
 
 -- profiles 表
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "用户可查看所有 profile" ON public.profiles
-  FOR SELECT USING (true);
-
-CREATE POLICY "用户只能更新自己的 profile" ON public.profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "用户可创建自己的 profile" ON public.profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
+DROP POLICY IF EXISTS "用户可查看所有 profile" ON public.profiles;
+CREATE POLICY "用户可查看所有 profile" ON public.profiles FOR SELECT USING (true);
+DROP POLICY IF EXISTS "用户只能更新自己的 profile" ON public.profiles;
+CREATE POLICY "用户只能更新自己的 profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+DROP POLICY IF EXISTS "用户可创建自己的 profile" ON public.profiles;
+CREATE POLICY "用户可创建自己的 profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- courses 表（所有人可读）
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "所有人可查看课程" ON public.courses
-  FOR SELECT USING (true);
-
-CREATE POLICY "讲师可管理课程" ON public.courses
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'instructor')
-  );
+DROP POLICY IF EXISTS "所有人可查看课程" ON public.courses;
+CREATE POLICY "所有人可查看课程" ON public.courses FOR SELECT USING (true);
+DROP POLICY IF EXISTS "讲师可管理课程" ON public.courses;
+CREATE POLICY "讲师可管理课程" ON public.courses FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'instructor')
+);
 
 -- lessons 表（所有人可读）
 ALTER TABLE public.lessons ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "所有人可查看课节" ON public.lessons
-  FOR SELECT USING (true);
-
-CREATE POLICY "讲师可管理课节" ON public.lessons
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'instructor')
-  );
+DROP POLICY IF EXISTS "所有人可查看课节" ON public.lessons;
+CREATE POLICY "所有人可查看课节" ON public.lessons FOR SELECT USING (true);
+DROP POLICY IF EXISTS "讲师可管理课节" ON public.lessons;
+CREATE POLICY "讲师可管理课节" ON public.lessons FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'instructor')
+);
 
 -- user_progress 表
 ALTER TABLE public.user_progress ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "用户可查看自己的进度" ON public.user_progress
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "用户可更新自己的进度" ON public.user_progress
-  FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "用户可创建自己的进度" ON public.user_progress
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "用户可查看自己的进度" ON public.user_progress;
+CREATE POLICY "用户可查看自己的进度" ON public.user_progress FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "用户可更新自己的进度" ON public.user_progress;
+CREATE POLICY "用户可更新自己的进度" ON public.user_progress FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "用户可创建自己的进度" ON public.user_progress;
+CREATE POLICY "用户可创建自己的进度" ON public.user_progress FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- code_submissions 表
 ALTER TABLE public.code_submissions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "用户可查看自己的提交" ON public.code_submissions
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "用户可创建提交" ON public.code_submissions
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "用户可查看自己的提交" ON public.code_submissions;
+CREATE POLICY "用户可查看自己的提交" ON public.code_submissions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "用户可创建提交" ON public.code_submissions;
+CREATE POLICY "用户可创建提交" ON public.code_submissions FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ================================================
 -- 触发器：自动创建 profile
