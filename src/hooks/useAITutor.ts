@@ -4,14 +4,14 @@ export function useAITutor() {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const askTutor = useCallback(async (lesson: any, currentCode: string, error?: string | null) => {
+  const askTutor = useCallback(async (lesson: any, currentCode: string, userQuestion?: string, error?: string | null) => {
     setLoading(true);
     setFeedback(null);
     try {
       const response = await fetch('/api/ai/tutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lesson, currentCode, error }),
+        body: JSON.stringify({ lesson, currentCode, userQuestion, error }),
       });
 
       if (!response.ok) {

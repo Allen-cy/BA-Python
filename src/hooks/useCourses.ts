@@ -1,6 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { CourseWithProgress, Lesson } from '../types';
+import curriculumData from '../data/curriculum.json';
+
+// 定义本地课程数据的接口
+interface RawSection {
+  id: string;
+  title: string;
+  content: string;
+  example_code: string;
+}
+
+interface RawStage {
+  id: string;
+  stage_number: number;
+  title: string;
+  intro: string;
+  sections: RawSection[];
+}
 
 // 课程数据管理 Hook
 export function useCourses() {
@@ -14,15 +31,23 @@ export function useCourses() {
     setLoading(true);
     setError(null);
     try {
-      // 直接从 Supabase 获取课程
-      const { data: coursesData, error: coursesError } = await supabase
-        .from('courses')
-        .select('*')
-        .order('stage_number', { ascending: true });
+      // 1. 从本地 JSON 获取课程结构 (Stage -> Course)
+      const data = curriculumData as { stages: RawStage[] };
+      const localCourses: CourseWithProgress[] = data.stages.map((stage) => ({
+        id: stage.id,
+        title: stage.title,
+        description: stage.intro.substring(0, 150).replace(/[#*`\n]/g, '') + '...',
+        stage_number: stage.stage_number,
+        duration_hours: 1.0, // 默认值
+        icon_type: stage.stage_number <= 5 ? 'book' : 'code', // 简单映射
+        tags: 'Python 基础',
+        case_count: stage.sections.length,
+        created_at: new Date().toISOString(),
+        status: 'locked', // 初始状态
+        progress_percent: 0
+      }));
 
-      if (coursesError) throw coursesError;
-
-      // 尝试获取用户进度
+      // 2. 尝试从 Supabase 获取用户进度
       const { data: { session } } = await supabase.auth.getSession();
       let progressMap: Record<string, { status: string; progress_percent: number }> = {};
 
@@ -40,8 +65,8 @@ export function useCourses() {
         }
       }
 
-      // 合并课程与进度
-      const merged: CourseWithProgress[] = (coursesData || []).map((course, index) => {
+      // 3. 合并课程与进度
+      const merged = localCourses.map((course, index) => {
         const userProgress = progressMap[course.id];
         let status: 'completed' | 'in_progress' | 'locked';
         let progressPercent: number;
@@ -50,11 +75,9 @@ export function useCourses() {
           status = userProgress.status as 'completed' | 'in_progress' | 'locked';
           progressPercent = userProgress.progress_percent;
         } else if (index === 0) {
-          status = 'completed';
-          progressPercent = 100;
-        } else if (index === 1) {
+          // 默认解锁第一个课程
           status = 'in_progress';
-          progressPercent = 65;
+          progressPercent = 0;
         } else {
           status = 'locked';
           progressPercent = 0;
@@ -65,9 +88,9 @@ export function useCourses() {
 
       setCourses(merged);
     } catch (err: unknown) {
+      console.error('Fetch courses error:', err);
       const message = err instanceof Error ? err.message : 'Failed to fetch courses';
       setError(message);
-      // 如果数据库没有数据，使用静态备用数据
       setCourses(getDefaultCourses());
     } finally {
       setLoading(false);
@@ -77,28 +100,35 @@ export function useCourses() {
   // 获取课节详情
   const fetchLesson = useCallback(async (courseId: string) => {
     try {
-      const { data: lesson, error: lessonError } = await supabase
-        .from('lessons')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('sort_order', { ascending: true })
-        .limit(1)
-        .single();
+      // 从本地 JSON 查找匹配的 Stage 和 Section
+      const data = curriculumData as { stages: RawStage[] };
+      const stage = data.stages.find(s => s.id === courseId);
+      
+      if (!stage || stage.sections.length === 0) {
+        throw new Error('Course not found');
+      }
 
-      if (lessonError) throw lessonError;
+      // 映射第一个 Section 为当前 Lesson (可以根据进度优化为获取最后一个未完成的)
+      const section = stage.sections[0];
+      
+      const lesson: Lesson = {
+        id: section.id,
+        course_id: stage.id,
+        title: section.title,
+        content: section.content,
+        theory_content: section.content, // 直接作为理论内容显示
+        business_background: "本章节将通过配套实战练习，帮助你掌握 Python 在商业分析中的应用。",
+        hints: ["请仔细阅读理论部分", "注意代码缩进"],
+        starter_code: section.example_code || "# 在这里开始编写你的代码\n",
+        validation_code: "True", // 默认为 true，后续可根据内容定制
+        sort_order: 1,
+        created_at: new Date().toISOString()
+      };
 
-      // 获取课程标题
-      const { data: course } = await supabase
-        .from('courses')
-        .select('title')
-        .eq('id', courseId)
-        .single();
-
-      const result = { ...lesson, course_title: course?.title || '' };
-      setCurrentLesson(result);
-      return result;
-    } catch {
-      // 备用数据
+      setCurrentLesson(lesson);
+      return lesson;
+    } catch (err) {
+      console.error('Fetch lesson error:', err);
       const lesson = getDefaultLesson();
       setCurrentLesson(lesson);
       return lesson;

@@ -25,6 +25,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onStar
       case 'table': return <Database size={24} />;
       case 'bar-chart': return <BarChart2 size={24} />;
       case 'users': return <Users size={24} />;
+      case 'book': return <Calculator size={24} />; // 默认映射
+      case 'code': return <BarChart2 size={24} />; // 默认映射
       default: return <Calculator size={24} />;
     }
   };
@@ -38,7 +40,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onStar
 
       <div className="space-y-8 pb-20">
         {courses.map((course, idx) => {
-          const isLocked = course.status === 'not_started' && idx > 0 && courses[idx-1].status !== 'completed';
+          const isLocked = course.status === 'locked';
           const isCompleted = course.status === 'completed';
           
           return (

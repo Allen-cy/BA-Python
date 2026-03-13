@@ -26,6 +26,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   const [previewLoading, setPreviewLoading] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false); // New state for AI tutor panel
   const [leftPanelActiveTab, setLeftPanelActiveTab] = useState<'theory' | 'practice'>('theory'); // New state for left panel tabs
+  const [aiQuestion, setAiQuestion] = useState(''); // 新增：用户向 AI 提问的内容
 
   const { 
     runCode, 
@@ -60,9 +61,12 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
     setRightPanelActiveTab('terminal');
   };
 
-  const handleAskAI = async () => {
+  const handleAskAI = async (question?: string) => {
     setRightPanelActiveTab('ai');
-    await askTutor(lesson, code, pyError);
+    // 如果传入了新问题优先使用，否则用 state 里的提问
+    const finalQuestion = typeof question === 'string' ? question : aiQuestion;
+    await askTutor(lesson, code, finalQuestion, pyError);
+    if (!question) setAiQuestion(''); // 如果是从输入框发起的，清空输入框
   };
 
   const handleSubmit = async () => {
@@ -430,27 +434,70 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                       <Loader2 size={32} className="animate-spin text-[#ec5b13]" />
                       <p className="text-sm font-medium">AI 老师正在分析您的思路...</p>
                     </div>
-                  ) : aiFeedback ? (
-                    <div className="prose prose-sm max-w-none text-slate-600 leading-relaxed bg-orange-50/30 p-5 rounded-2xl border border-orange-100/50 animate-in slide-in-from-top-2">
-                      <div className="flex items-center gap-2 mb-4 text-[#ec5b13]">
-                        <div className="w-8 h-8 bg-[#ec5b13] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-200">
-                          <Sparkles size={18} fill="currentColor" />
-                        </div>
-                        <span className="font-bold text-base">AI 老师建议 (AI Feedback)</span>
-                      </div>
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed">{aiFeedback}</div>
-                      <button 
-                        onClick={() => setAiFeedback(null)}
-                        className="mt-6 text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors"
-                      >
-                         <Loader2 size={12} /> 重新分析我的代码
-                      </button>
-                    </div>
                   ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-slate-300 text-center px-10">
-                      <Sparkles size={48} className="mb-4 opacity-20" />
-                      <p className="text-sm font-medium text-slate-400">代码写累了吗？</p>
-                      <p className="text-xs mt-1">点击右侧的“向 AI 老师求助”，它将指引您完成挑战</p>
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                      <div className="flex-1 overflow-y-auto custom-scrollbar p-1">
+                        {aiFeedback ? (
+                          <div className="prose prose-sm max-w-none text-slate-600 leading-relaxed bg-orange-50/30 p-5 rounded-2xl border border-orange-100/50 animate-in slide-in-from-top-2">
+                            <div className="flex items-center gap-2 mb-4 text-[#ec5b13]">
+                              <div className="w-8 h-8 bg-[#ec5b13] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-200">
+                                <Sparkles size={18} fill="currentColor" />
+                              </div>
+                              <span className="font-bold text-base">AI 老师建议 (AI Feedback)</span>
+                            </div>
+                            <div className="whitespace-pre-wrap text-sm leading-relaxed">{aiFeedback}</div>
+                            <button 
+                              onClick={() => handleAskAI()}
+                              className="mt-6 text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors"
+                            >
+                               <Loader2 size={12} /> 重新分析我的代码
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-slate-300 text-center px-10 py-10">
+                            <Sparkles size={48} className="mb-4 opacity-20" />
+                            <p className="text-sm font-medium text-slate-400">代码写累了吗？</p>
+                            <p className="text-xs mt-1">在下方输入框向我提问，或点击“分析代码”获取建议</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* AI 提问框 */}
+                      <div className="mt-4 pt-4 border-t border-slate-100 shrink-0">
+                        <div className="relative group">
+                          <textarea
+                            value={aiQuestion}
+                            onChange={(e) => setAiQuestion(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAskAI();
+                              }
+                            }}
+                            placeholder="在这里输入您的问题... (Shift+Enter 换行)"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#ec5b13]/20 focus:border-[#ec5b13] transition-all resize-none min-h-[80px]"
+                          />
+                          <button
+                            onClick={() => handleAskAI()}
+                            disabled={aiLoading || (!aiQuestion.trim() && !aiFeedback)}
+                            className="absolute right-3 bottom-3 p-2 bg-[#ec5b13] text-white rounded-lg hover:opacity-90 disabled:opacity-30 transition-all shadow-md shadow-orange-200"
+                            title="发送问题"
+                          >
+                            {aiLoading ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} className="rotate-0" fill="currentColor" />}
+                          </button>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between px-1">
+                          <span className="text-[10px] text-slate-400 italic">由 Kimi-k2.5 提供辅导支持</span>
+                          {!aiFeedback && (
+                            <button 
+                              onClick={() => handleAskAI("")}
+                              className="text-[10px] font-bold text-[#ec5b13] hover:underline"
+                            >
+                              直接分析代码进度 →
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -9,7 +9,7 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ error: '仅支持 POST 请求' }), { status: 405 });
   }
 
-  const { lesson, currentCode, error } = await req.json();
+  const { lesson, currentCode, error, userQuestion } = await req.json();
 
   const apiKey = process.env.KIMI_API_KEY;
   if (!apiKey) {
@@ -24,7 +24,7 @@ export default async function handler(req: Request) {
   const prompt = `
 你是一位专业的商业分析 (BA) 和 Python 导师。你正在辅导一名学生完成以下课程任务：
 
-【课程背景】：${lesson.business_background}
+【当前课程阶段】：${lesson.course_title || "Python 基础"}
 【当前任务】：${lesson.title}
 【任务细节】：${lesson.content}
 
@@ -33,15 +33,19 @@ export default async function handler(req: Request) {
 ${currentCode}
 \`\`\`
 
-【学生反馈的错误/问题】：
-${error || "暂无报错，但学生需要指导"}
+【系统检测错误】：
+${error || "暂无系统报错"}
+
+【学生提出的具体提问】：
+${userQuestion ? `学生问：\"${userQuestion}\"` : "学生没有提出具体问题，请根据代码进度给出指导建议。"}
 
 【辅导要求】：
-1. 分析学生代码中的问题（如果报错，请指出原因；如果逻辑不符合商业背景，请说明业务逻辑错误）。
-2. 提供启发式的引导，**不要直接给出全量答案代码**，而是指导学生如何思考这一步。
-3. 语气要亲切、专业。
-4. 解答要简练，重点突出 Pandas/ROI 计算等核心概念。
-5. 必须使用中文回复。
+1. **优先回答学生的具体提问**。
+2. 分析学生代码中的问题（如果报错，请指出原因；如果逻辑不符合商业背景，请说明业务逻辑错误）。
+3. 提供启发式的引导，**不要直接给出全量答案代码**，而是指导学生如何思考这一步。
+4. 语气要亲切、专业。
+5. 解答要简练，重点突出核心概念。
+6. 必须使用中文回复。
 
 请给出你的辅导反馈：
 `;
