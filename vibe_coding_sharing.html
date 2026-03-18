@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding: 从 0 到 1 全流程实践</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --transition-speed: 0.6s;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Slide Container */
+        .slides-container {
+            height: 100%;
+            width: 100%;
+            transition: transform var(--transition-speed) cubic-bezier(0.645, 0.045, 0.355, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        p {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 800px;
+            text-align: center;
+        }
+
+        /* Components */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+        }
+
+        .card h3 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            font-size: 1.1rem;
+            text-align: left;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Codeblock Style */
+        .code-display {
+            background: #000;
+            padding: 2rem;
+            border-radius: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            color: #d1d5db;
+            width: 100%;
+            max-width: 800px;
+            border-left: 4px solid var(--accent-color);
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+            z-index: 200;
+        }
+
+        /* Theme: Bold Signal Overlays */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 700px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2.2rem; }
+            .card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="slides-container" id="slidesContainer">
+        <!-- Slide 1: Title -->
+        <section class="slide active">
+            <div class="tag">Vibe Coding Masterclass</div>
+            <h1>从 0 到 1<br>全流程实践分享</h1>
+            <p>面向非技术人员：如何利用 AI 智能体跨越技术鸿沟，打造属于你的商业分析平台</p>
+            <div style="margin-top: 3rem; color: var(--text-secondary); font-weight: 500;">分享人: Allen</div>
+        </section>
+
+        <!-- Slide 2: Definition -->
+        <section class="slide">
+            <h2>什么是 Vibe Coding?</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="tag">核心定义</div>
+                    <h3>跳过底层逻辑</h3>
+                    <p>不再纠结语法，专注于业务逻辑与交互体验。用“氛围”和“提示词”驱动开发。</p>
+                </div>
+                <div class="card">
+                    <div class="tag">强大工具链</div>
+                    <h3>多模态协作</h3>
+                    <p><b>Stitch + AI Studio + Antigravity</b><br>从 UI 设计到后端部署的无缝衔接。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Step 1 -->
+        <section class="slide">
+            <div class="tag">Step 1</div>
+            <h2>提示词设计：以终为始</h2>
+            <div class="code-display">
+【角色设定】你是一位资深前端工程师...
+【项目目标】开发 BA-Python 的 MVP 版本...
+【业务场景】销售漏斗分析、用户留存、RFM 模型...
+【需求亮点】阶段化闯关地图 + Jupyter 风格工作区
+            </div>
+            <p style="margin-top: 1.5rem;">作为商业分析师，清晰定义的业务痛点就是最强的代码。</p>
+        </section>
+
+        <!-- Slide 4: Step 2 -->
+        <section class="slide">
+            <div class="tag">Step 2</div>
+            <h2>UI 设计：Stitch 的极速魔法</h2>
+            <div class="card-grid">
+                <div class="card" style="grid-column: span 2;">
+                    <h3>从文字到视觉的瞬间跨越</h3>
+                    <p>1. 将 Gemini 生成的提示词直接粘贴至 Google Stitch。<br>
+                       2. 快速生成多套符合商业分析风格（商务蓝/深灰）的高保真原型。<br>
+                       3. 利用 Annotate 功能进行局部精准修饰。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Step 3 -->
+        <section class="slide">
+            <div class="tag">Step 3</div>
+            <h2>前端开发：AI Studio 的画笔</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>精准转换</h3>
+                    <p>一键将 Stitch 设计导出至 AI Studio，自动配置 UI 参考图与 HTML 结构。</p>
+                </div>
+                <div class="card">
+                    <h3>交互魔法</h3>
+                    <p>利用画笔精准标注：这里需要一个进度条，那里需要一个 Python 编辑器。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Step 4 -->
+        <section class="slide">
+            <div class="tag">Step 4</div>
+            <h2>后端与数据库：智慧大脑</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Antigravity 联调</h3>
+                    <p>分析前端代码，自动生成 FastAPI/Python 后端逻辑，实现数据交互。</p>
+                </div>
+                <div class="card">
+                    <h3>Supabase 存储</h3>
+                    <p>配置 ENV 变量，完成 SQL 初始化，让应用拥有“记忆”。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Step 5 -->
+        <section class="slide">
+            <div class="tag">Step 5</div>
+            <h2>部署上线：走向世界</h2>
+            <div class="code-display">
+$ git add .
+$ git commit -m "feat: first release"
+$ git push origin main
+            </div>
+            <p style="margin-top: 1rem;">通过 SSH 密钥一次性配置，将代码推送到 GitHub，由 Vercel 实现全自动 CI/CD 部署。</p>
+        </section>
+
+        <!-- Slide 8: Step 6 -->
+        <section class="slide">
+            <div class="tag">Step 6</div>
+            <h2>公网发布：域名与解析</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Cloudflare 解析</h3>
+                    <p>根域名与子域名的艺术。让 vibe-coding.example.com 瞬间生效。</p>
+                </div>
+                <div class="card">
+                    <h3>HTTPS 安全</h3>
+                    <p>Vercel 自动颁发 SSL 证书，确保应用的专业度与安全性。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Summary -->
+        <section class="slide">
+            <h2>总结：BA 的心法</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>不仅是写代码</h3>
+                    <p>是商业逻辑的解构。Stage 1-4 覆盖了从 ROI 预测到 RFM 客户分层的完整商业闭环。</p>
+                </div>
+                <div class="card">
+                    <h3>低门槛，高回报</h3>
+                    <p>非技术人员不再被工具束缚，而是用工具放大业务洞察力。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10: Q&A -->
+        <section class="slide">
+            <h1>Q & A</h1>
+            <p>感谢聆听！开启你的 Vibe Coding 之旅吧。</p>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <div class="tag">#BA</div>
+                <div class="tag">#Python</div>
+                <div class="tag">#AI-Agents</div>
+            </div>
+        </section>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" title="Previous (Left Arrow)">←</button>
+        <button class="btn" id="nextBtn" title="Next (Right Arrow / Space)">→</button>
+    </div>
+
+    <script>
+        const container = document.getElementById('slidesContainer');
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        function updateSlides() {
+            container.style.transform = `translateY(-${currentSlide * 100}%)`;
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === currentSlide);
+            });
+            progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        }
+
+        // Event Listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // Initialize display
+        updateSlides();
+    </script>
+</body>
+</html>
